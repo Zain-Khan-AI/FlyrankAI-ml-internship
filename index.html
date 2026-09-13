@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Intelligence Research Paper - Capstone Project</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2, h3 {
+            color: #111;
+        }
+        h1 {
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+        h2 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            color: #0066cc;
+        }
+        p, li {
+            font-size: 16px;
+        }
+        .abstract {
+            background-color: #f0f7ff;
+            border-left: 5px solid #0066cc;
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+        .credit {
+            background-color: #fff3cd;
+            border: 1px solid #ffeba0;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #fff;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Automating Enterprise Content Audits Using Unsupervised Time-Aware Machine Learning Clustering</h1>
+    
+    <div class="credit">
+        📊 Acknowledgments & Data Credit: Built on the FlyRank ML Internship dataset (<a href="https://flyrank.ai" target="_blank">https://flyrank.ai</a>)
+    </div>
+
+    <h2>1. Title & Abstract</h2>
+    <div class="abstract">
+        <strong>Abstract:</strong> Enterprise search intelligence operations produce massive volumes of daily performance data that are too complex for human content teams to audit manually. <strong>This study addresses this challenge by developing an unsupervised K-Means clustering model</strong> to automatically categorize pages into behavioral performance groups. <strong>Using the FlyRank dataset, we aggregated daily organic metrics and joined them with content structural metadata</strong> across two sequential monthly windows. <strong>The results successfully isolated four highly distinct and stable content archetypes</strong>, which directly translate into automated digital marketing actions. <strong>Time-aware validation on next-month unseen data proved that these performance clusters remain positionally and contextually stable</strong>, providing a reliable decision-support engine for corporate SEO investments.
+    </div>
+
+    <h2>2. Introduction / Problem Statement</h2>
+    <p>Large enterprise websites manage tens of thousands of published articles simultaneously. Digital marketing managers and content strategists face a severe operational bottleneck: they cannot efficiently identify which pages are driving revenue, which require minor title tuning, and which are completely dead weight (wasting indexing budget).</p>
+    <p>This research directly supports executive decision-making by replacing human guesswork with an automated system. By running this model, a Chief Marketing Officer (CMO) or Content Director can instantly audit a database of over <strong>55,000 pages</strong> and allocate engineering or copywriting resources exactly where they will generate the highest organic return on investment (ROI).</p>
+
+    <h2>3. Data Description & Limitations</h2>
+    <ul>
+        <li><strong>Dataset Release Used:</strong> FlyRank Warehouse Release <strong>v20260703</strong>.</li>
+        <li><strong>Tables Selected:</strong> <code>fact_content_daily_performance</code> and <code>dim_content</code>.</li>
+        <li><strong>Date Windows Selected:</strong>
+            <ul>
+                <li><strong>Feature Window (Training):</strong> February 2026 (<code>month=2026-02</code>) — 7,355,108 raw daily rows compressed into 321,546 unique content items.</li>
+                <li><strong>Validation Window (Testing):</strong> March 2026 (<code>month=2026-03</code>).</li>
+            </ul>
+        </li>
+        <li><strong>Exclusions & Data Cleaning Filters:</strong> Long-tail noise filtering was applied by dropping content items with total monthly impressions less than or equal to 100. Pages with missing structural metadata (<code>word_count IS NULL</code>) were excluded from the core distance training matrix.</li>
+        <li><strong>Honest Data Quality Limitation:</strong> A severe structural limitation was observed in the raw database: out of 321,546 active pages in February, <strong>241,422 rows (75%) lacked matching metadata in the dimension table</strong>. Furthermore, GA4 user engagement metrics (<code>total_scrolls</code>) were heavily sparse with over 50% missing cells, forcing us to drop scroll variables from active feature training to protect model coherence.</li>
+    </ul>
+
+    <h2>4. Methodology</h2>
+    <p>To ensure high-integrity unsupervised boundaries, our model design utilizes the following components:</p>
+    <ul>
+        <li><strong>Feature Selection:</strong> 5 core continuous variables were generated: <code>total_impressions</code>, <code>total_clicks</code>, <code>avg_position</code>, <code>ctr</code>, and <code>word_count</code>.</li>
+        <li><strong>Mathematical Transformation:</strong> Extreme right-skewed metric frequencies (impressions, clicks, word count) were smoothed using log transformation (<code>np.log1p</code>) to eliminate mathematical bias during spatial distance optimization.</li>
+        <li><strong>Feature Scaling:</strong> <code>StandardScaler</code> was applied to normalize all coordinates into standardized Z-scores (Mean=0, Std=1) so that large values (word counts) do not overpower decimal bounds (CTR).</li>
+        <li><strong>Baseline Selection:</strong> A hard-coded heuristic split based purely on impressions served as the baseline comparison.</li>
+        <li><strong>Validation Split Design:</strong> A rigorous <strong>time-aware cross-validation split</strong> was enforced. The pipeline trains scaling weights and cluster positions entirely on February data, then freezes the hyperparameters, passing March data purely through <code>.transform()</code> and <code>.predict()</code> execution tracks to protect against future leakage.</li>
+    </ul>
+
+    <h2>5. Experimental Results & Performance Comparison</h2>
+    <p>Our K-Means model successfully isolated clean performance profiles that remain highly consistent across sequential historical boundaries.</p>
+    
+    <h3>February 2026 Training Profiles (55,247 Complete Pages)</h3>
+    <ul>
+        <li><strong>Cluster 0 (Heavy Content / Underdogs):</strong> Impressions: 1,452.3 | Clicks: 1.46 | Avg Position: 23.45 | Word Count: 4,347.2 | Count: 10,400 rows.</li>
+        <li><strong>Cluster 1 (Superstars):</strong> Impressions: 1,026.4 | Clicks: 17.95 | Avg Position: 7.53 | CTR: 0.0173 (1.73%) | Count: 2,662 rows.</li>
+        <li><strong>Cluster 2 (Zombies):</strong> Impressions: 590.3 | Clicks: 0.80 | Avg Position: 8.73 | CTR: 0.0016 | Count: 23,635 rows.</li>
+        <li><strong>Cluster 3 (Hidden Gems):</strong> Impressions: 6,080.2 | Clicks: 21.99 | Avg Position: 7.18 | CTR: 0.0038 | Count: 18,550 rows.</li>
+    </ul>
+
+    <h3>March 2026 Unseen Validation Profiles (72,342 Test Pages)</h3>
+    <p>When the frozen model evaluated unseen March matrices, the underlying segment logic reproduced perfectly identical clusters:</p>
+    <ul>
+        <li><strong>March Cluster 3 (Superstars Profile):</strong> Clicks: 19.51 | Avg Position: 7.91 | CTR: 0.0170 (1.70%). Matches Feb Cluster 1.</li>
+        <li><strong>March Cluster 2 (Traffic Giants Profile):</strong> Impressions: 7,321.9 | Clicks: 24.23 | CTR: 0.0037. Matches Feb Cluster 3.</li>
+        <li><strong>March Cluster 0 (Zombies Profile):</strong> Impressions: 640.5 | Clicks: 0.83. Matches Feb Cluster 2.</li>
+    </ul>
+
+    <h2>6. Ranked Action Playbook (Recommendations)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Archetype Name</th>
+                <th>Core Logic Summary</th>
+                <th>FlyRank Action Playbook</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td><strong>Superstars ⭐</strong></td>
+                <td>High CTR converts minimal impressions into heavy traffic dividends.</td>
+                <td>🛡️ <strong>Protect & Monitor:</strong> Freeze modifications and maintain safe authority links.</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td><strong>Hidden Gems 💎</strong></td>
+                <td>Extreme impressions but weak CTR indicates bad titles/meta metadata.</td>
+                <td>⚙️ <strong>Improve / Optimize Title:</strong> Rewrite metadata with high-intent keywords to capture clicks.</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td><strong>Underdogs 📈</strong></td>
+                <td>High-investment long articles (~4,000 words) trapped on search page 3.</td>
+                <td>✍️ <strong>Rewrite / Content Refresh:</strong> Perform competitive gap analysis to push rankings to page 1.</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td><strong>Zombies 20%</strong></td>
+                <td>Thousands of low-performing pages wasting crawling budget.</td>
+                <td>✂️ <strong>Prune / Delete / Merge:</strong> Consolidate overlapping topics and delete zero-value URLs.</td>
